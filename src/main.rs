@@ -9,6 +9,13 @@ struct ActiveThread {
     strand_number: u32,
 }
 
+impl ActiveThread {
+    fn new(length: f32, strands: u32) -> ActiveThread {
+        if strands > 6 {panic!("Cannot embroider with more than 6 strands.")}
+        ActiveThread {started: true, total_cm: length, strand_number: strands, remaining_cm: length}
+    }
+}
+
 struct LinearStitch {
     start_x: f32,
     end_x: f32,
@@ -104,13 +111,8 @@ trait Stitch {
     }
 }
 
-fn thread_needle(length: f32, strands: u32) -> ActiveThread {
-    if strands > 6 {panic!("Cannot embroider with more than 6 strands.")}
-    ActiveThread {started: true, total_cm: length, strand_number: strands, remaining_cm: length}
-}
-
 fn main() {
-    let mut my_thread = thread_needle(40.0, 4);
+    let mut my_thread = ActiveThread::new(40.0, 4);
 
     let stitch_1 = LinearStitch::new(1.0, 7.0, 2.0, LinearStyle::Running);
     let stitch_2 = LinearStitch::new(8.0, 23.0, 2.0, LinearStyle::Stem);
@@ -120,5 +122,7 @@ fn main() {
     assert!(my_thread.remaining_cm == 34.0);
     stitch_2.make_stitch(&mut my_thread);
     assert!(my_thread.remaining_cm == 19.0);
-    stitch_3.make_stitch(&mut my_thread);
+
+    //supposed to fail because there is not enough thread left to complete it
+    stitch_3.make_stitch(&mut my_thread); 
 }
